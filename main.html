@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fibonacci calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        input {
+            padding: 12px;
+            font-size: 18px;
+            width: 150px;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+            text-align: center;
+        }
+        button {
+            padding: 12px 25px;
+            font-size: 18px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #result {
+            margin-top: 30px;
+            font-size: 18px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 5px solid #3498db;
+            text-align: left;
+            word-wrap: break-word;
+        }
+        .error {
+            color: #e74c3c;
+        }
+        .stats {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Fibb calc</h1>
+        <p>Enter number from 1 to 10000:</p>
+        <input type="number" id="fibInput" min="1" max="10000" value="100">
+        <button id="calculateBtn">Count</button>
+        
+        <div id="result">The result will be here...</div>
+        <div class="stats" id="stats"></div>
+    </div>
+
+    <script>
+        document.getElementById('calculateBtn').addEventListener('click', calculateFibonacci);
+        
+        function calculateFibonacci() {
+            const input = document.getElementById('fibInput');
+            const resultDiv = document.getElementById('result');
+            const statsDiv = document.getElementById('stats');
+            const n = parseInt(input.value);
+            
+
+            if (isNaN(n)) {
+                resultDiv.innerHTML = '<span class="error">Введите число, бро!</span>';
+                return;
+            }
+            
+            if (n < 1 || n > 10000) {
+                resultDiv.innerHTML = `<span class="error">Only numbers from 1 to 10000, bro!</span>`;
+                return;
+            }
+            
+            resultDiv.textContent = 'Counting...';
+            statsDiv.textContent = '';
+            
+
+            const startTime = performance.now();
+            
+            setTimeout(() => {
+                try {
+                    const fibNumber = fibonacci(n);
+                    const endTime = performance.now();
+                    const timeTaken = (endTime - startTime).toFixed(2);
+                    
+                    resultDiv.innerHTML = `<strong>Fib(${n}):</strong><br>${formatNumber(fibNumber)}`;
+                    statsDiv.textContent = `Counted in ${timeTaken} ms | Number length: ${fibNumber.length} digits`;
+                } catch (e) {
+                    resultDiv.innerHTML = `<span class="error">Error: ${e.message}</span>`;
+                }
+            }, 10);
+        }
+        
+        // Оптимизированная функция для больших чисел Фибоначчи
+        function fibonacci(n) {
+            if (n === 0) return "0";
+            if (n <= 2) return "1";
+            
+            let a = "1";
+            let b = "1";
+            
+            for (let i = 3; i <= n; i++) {
+                const next = addStrings(a, b);
+                a = b;
+                b = next;
+            }
+            
+            return b;
+        }
+        
+        // Сложение больших чисел в виде строк
+        function addStrings(num1, num2) {
+            let result = "";
+            let carry = 0;
+            let i = num1.length - 1;
+            let j = num2.length - 1;
+            
+            while (i >= 0 || j >= 0 || carry > 0) {
+                const digit1 = i >= 0 ? parseInt(num1[i--]) : 0;
+                const digit2 = j >= 0 ? parseInt(num2[j--]) : 0;
+                const sum = digit1 + digit2 + carry;
+                result = (sum % 10) + result;
+                carry = Math.floor(sum / 10);
+            }
+            
+            return result;
+        }
+        
+        // Форматирование длинного числа с пробелами
+        function formatNumber(numStr) {
+            if (numStr.length <= 20) return numStr;
+            
+            // Добавляем пробелы каждые 3 цифры для удобства чтения
+            let formatted = "";
+            for (let i = numStr.length - 1, count = 0; i >= 0; i--, count++) {
+                formatted = numStr[i] + formatted;
+                if (count % 3 === 2 && i !== 0) formatted = " " + formatted;
+            }
+            
+            return formatted + `<br><small>Total digits: ${numStr.length}</small>`;
+        }
+    </script>
+</body>
+</html>
